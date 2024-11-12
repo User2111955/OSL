@@ -1,0 +1,70 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<sys/wait.h>
+
+void asc_sort(int a[30],int n){
+    
+    int i,j,temp;
+    
+    for(i=0;i<n;i++){
+        for(int j=0;j<n-i-1;j++){
+            if(a[j]>a[j+1]){
+                temp=a[j];
+                a[j]=a[j+1];
+                a[j+1]=temp;
+            }
+        }
+    }
+    
+    for(i=0;i<n;i++){
+        printf("\t%d",a[i]);
+    }
+    printf("\n");
+}
+
+
+void desc_sort(int a[30],int n){
+    
+    int i,j,temp;
+    
+    for(i=0;i<n;i++){
+        for(int j=0;j<n-i-1;j++){
+            if(a[j]<a[j+1]){
+                temp=a[j];
+                a[j]=a[j+1];
+                a[j+1]=temp;
+            }
+        }
+    }
+    
+    for(i=0;i<n;i++){
+        printf("\t%d",a[i]);
+    }
+    printf("\n");
+}
+
+
+int main(){
+    int a[30],n,i;
+    printf("Enter size of an array to be sorted\n");
+    scanf("%d",&n);
+    
+    for(i=0;i<n;i++){
+        printf("Enter the %d th array element:"<<i+1);
+        scanf("%d",&a[i]);
+    }
+    
+    if(fork()==0){
+        printf("\nChild process id=%d\n",getpid());
+        desc_sort(a,n);
+    }
+    else{
+        wait(NULL);
+        printf("\nparent process id=%d\n",getpid());
+        asc_sort(a,n);
+    }
+    
+    
+    return 0;
+}
