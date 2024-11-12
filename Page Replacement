@@ -1,0 +1,139 @@
+#include <stdio.h>
+int n, nf;
+int in[100];
+int p[50];
+int hit = 0;
+int pgfaultcnt = 0;
+
+void getData() {
+    printf("Enter length of page reference sequence: ");
+    scanf("%d", &n);
+    printf("Enter the page reference sequence:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &in[i]);
+    }
+    printf("Enter number of frames: ");
+    scanf("%d", &nf);
+}
+
+void initialise() {
+    pgfaultcnt = 0;
+    for (int i = 0; i < nf; i++) {
+        p[i] = 9999;  // Initialize frame array with a large number as empty indicator
+    }
+}
+
+int isHit(int data) {
+    hit = 0;
+    for (int i = 0; i < nf; i++) {
+        if (p[i] == data) {
+            hit = 1;
+            break;
+        }
+    }
+    return hit;
+}
+
+void disPages() {
+    for (int i = 0; i < nf; i++) {
+        if (p[i] != 9999) {
+            printf("%d ", p[i]);
+        } else {
+            printf("- ");
+        }
+    }
+    printf("\n");
+}
+
+void disppgFaultCnt() {
+    printf("Total number of page faults: %d\n", pgfaultcnt);
+}
+
+void fifo() {
+    initialise();
+    int next_replace_index = 0;
+
+    for (int i = 0; i < n; i++) {
+        printf("\nFor %d: ", in[i]);
+        
+        if (isHit(in[i]) == 0) {  // Page fault occurs
+            p[next_replace_index] = in[i];  // Replace the page at the current index
+            next_replace_index = (next_replace_index + 1) % nf;  // Update replacement index in circular fashion
+            pgfaultcnt++;
+            disPages();
+        } else {
+            printf("No page fault\n");
+        }
+    }
+    disppgFaultCnt();
+}
+
+
+void lru(){
+    initialise();
+    int least[50];
+    
+    for(int i=0;i<n;i++){
+        printf("\n For %d",in[i]);
+        
+        if(isHit(in[i])==0){
+            for(int j=0;j<nf;j++){
+                int pg=p[j];
+                int found=0;
+                
+                for(int k=i-1;k>=0;k--){
+                    if(pg==in[k]){
+                        least[j]=k;
+                        found=1;
+                        break;
+                        
+                    }else{
+                        found=0;
+                    }
+                }
+                if(!found){
+                    least[j]=-9999;
+                }
+            }
+            
+            int min=9999;
+            int repindex;
+            for(int j=0;j<nf;j++){
+                if(least[j]<min){
+                    min=least[j];
+                    repindex=j;
+                }
+            }
+            p[repindex]=in[i];
+            pgfaultcnt++;
+            
+            disPages();
+        }
+        else{
+            printf("No page fault!");
+        }
+    }
+    disppgFaultCnt();
+}
+
+
+int main() {
+   int choice;
+   while(1){
+       printf("\nPage Replacement Algorithm \n1.Enter data\n2.FIFO\n3.LRU\n4.Exit\nEnter your choice");
+       scanf("%d",&choice);
+       switch(choice){
+           case 1:getData();
+           break;
+           case 2: fifo();
+                    break;
+            case 3:  lru();
+                    break;
+                    
+            default: 
+                return 0;
+                break;
+       }
+   }
+   
+}
